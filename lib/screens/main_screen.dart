@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chatting/config/palette.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'chat_screen.dart';
 
 class LoginSignupScreen extends StatefulWidget {
   const LoginSignupScreen({Key? key}) : super(key: key);
@@ -9,6 +11,8 @@ class LoginSignupScreen extends StatefulWidget {
 }
 
 class _LoginSignupScreenState extends State<LoginSignupScreen> {
+  final _authentication = FirebaseAuth.instance;
+
   bool isSignupScreen = true;
   final _formKey = GlobalKey<FormState>();
   String userName = '';
@@ -289,20 +293,21 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                           child: Column(
                             children: [
                               TextFormField(
+                                keyboardType: TextInputType.emailAddress,
                                 key: ValueKey(4),
                                 validator: (value) {
-                                  if (value!.isEmpty || value.length < 4)
-                                    return 'Please enter at least 4 characters';
+                                  if (value!.isEmpty || !value.contains('@'))
+                                    return 'Please enter valid email';
                                   return null;
                                 },
                                 onSaved: (value) {
-                                  userName = value!;
+                                  userEmail = value!;
                                 },
                                 onChanged: (value) {
-                                  userName = value;
+                                  userEmail = value;
                                 },
                                 decoration: InputDecoration(
-                                  prefixIcon: Icon(Icons.account_circle,
+                                  prefixIcon: Icon(Icons.email,
                                     color: Palette.iconColor,
                                   ),
                                   enabledBorder: OutlineInputBorder(
@@ -313,7 +318,7 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                                     borderSide: BorderSide(color: Palette.textColor1),
                                     borderRadius: BorderRadius.all(Radius.circular(35.0),),
                                   ),
-                                  hintText: 'User name',
+                                  hintText: 'Email',
                                   hintStyle: TextStyle(
                                     fontSize: 14,
                                     color: Palette.textColor1,
@@ -325,15 +330,15 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                               TextFormField(
                                 key: ValueKey(5),
                                 validator: (value) {
-                                  if (value!.isEmpty || !value.contains('@'))
-                                    return 'Please enter valid email';
+                                  if (value!.isEmpty || value.length < 6 )
+                                    return 'Password must be at least 7 characters long.';
                                   return null;
                                 },
                                 onSaved: (value) {
-                                  userEmail = value!;
+                                  userPassword = value!;
                                 },
                                 onChanged: (value) {
-                                  userEmail = value;
+                                  userPassword = value;
                                 },
                                 obscureText: true,
                                 decoration: InputDecoration(
@@ -384,11 +389,50 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                     borderRadius: BorderRadius.circular(50)
                   ),
                   child: GestureDetector(
-                    onTap: () {
-                      _tryValidation();
-                      print(userName);
-                      print(userPassword);
-                      print(userEmail);
+                    onTap: () async {
+                      if (isSignupScreen) {
+                        _tryValidation();
+                        try {
+                          final newUser = await _authentication
+                              .createUserWithEmailAndPassword(
+                              email: userEmail,
+                              password: userPassword);
+                          if (newUser.user != null) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ChatScreen(),
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          print(e);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content:
+                                Text('Please check your email and password'),
+                              backgroundColor: Colors.blue,
+                            ),
+                          );
+                        }
+                      } else {
+                        _tryValidation();
+                        try {
+                          final newUser = await _authentication.signInWithEmailAndPassword(
+                              email: userEmail, password: userPassword
+                          );
+                          if (newUser.user != null) {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ChatScreen(),
+                                ),
+                            );
+                          }
+                        } catch (e) {
+                          print(e);
+                        }
+                      }
                     },
                     child: Container(
                       decoration: BoxDecoration(

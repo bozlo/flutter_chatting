@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "881596936265",
+    "project_id": "test-weather-8dbdf",
+    "storage_bucket": "test-weather-8dbdf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:881596936265:android:b84968451180db8f388f98",
+        "android_client_info": {
+          "package_name": "com.example.flutter_chatting"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "881596936265-m14228btgh2s35m0a0sgan3b6lj1bl4d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjR1G0i7HQmuQwhOb0hTcE3n1CRav9FmA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "881596936265-m14228btgh2s35m0a0sgan3b6lj1bl4d.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "881596936265-s0954l7g9rt3cmsvat20dre60e3gt5e3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flutterChatting"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
