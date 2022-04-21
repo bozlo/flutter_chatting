@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chatting/config/palette.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'chat_screen.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
@@ -405,12 +406,17 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                                 email: userEmail,
                                 password: userPassword);
                             if (newUser.user != null) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ChatScreen(),
-                                ),
-                              );
+                              await FirebaseFirestore.instance.collection('user')
+                                .doc(newUser.user!.uid).set({
+                                'userName': userName,
+                                'email': userEmail,
+                              });
+                              // Navigator.push(
+                              //   context,
+                              //   MaterialPageRoute(
+                              //     builder: (context) => ChatScreen(),
+                              //   ),
+                              // );
                               setState(() {
                                 showSpinner = false;
                               });
@@ -432,12 +438,12 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                                 email: userEmail, password: userPassword
                             );
                             if (newUser.user != null) {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ChatScreen(),
-                                  ),
-                              );
+                              // Navigator.push(
+                              //     context,
+                              //     MaterialPageRoute(
+                              //       builder: (context) => ChatScreen(),
+                              //     ),
+                              // );
                               setState(() {
                                 showSpinner = false;
                               });

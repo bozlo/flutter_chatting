@@ -18,8 +18,6 @@ class _ChatScreenState extends State<ChatScreen> {
       final user = _authentication.currentUser;
       if (user != null) {
         loggedUser = user;
-        print(loggedUser!.uid);
-        print(loggedUser!.email);
       }
     } catch (e) {
       print(e);
@@ -44,7 +42,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             onPressed: () {
               _authentication.signOut();
-              Navigator.pop(context);
+              //Navigator.pop(context);
             },
           ),
         ],
