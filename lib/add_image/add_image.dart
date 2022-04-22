@@ -6,7 +6,9 @@ import 'package:image_picker/image_picker.dart';
 
 
 class AddImage extends StatefulWidget {
-  const AddImage({Key? key}) : super(key: key);
+  final Function(File pickedImage) addImageFunc;
+
+  const AddImage(this.addImageFunc, {Key? key}) : super(key: key);
 
   @override
   State<AddImage> createState() => _AddImageState();
@@ -27,6 +29,8 @@ class _AddImageState extends State<AddImage> {
       if (pickedImageFile != null)
         pickedImage = File(pickedImageFile.path);
     });
+
+    widget.addImageFunc(pickedImage!);
   }
   @override
   Widget build(BuildContext context) {

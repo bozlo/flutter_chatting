@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_chatting/config/palette.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -5,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'chat_screen.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:flutter_chatting/add_image/add_image.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class LoginSignupScreen extends StatefulWidget {
   const LoginSignupScreen({Key? key}) : super(key: key);
@@ -22,7 +24,11 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
   String userName = '';
   String userEmail = '';
   String userPassword = '';
+  File? userPickedImage;
 
+  void pickedImage(File image) {
+    userPickedImage = image;
+  }
   void _tryValidation() {
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
@@ -36,7 +42,7 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
       builder: (context) {
         return Dialog(
           backgroundColor: Colors.white,
-          child: AddImage(),
+          child: AddImage(pickedImage),
         );
       }
     );
@@ -429,17 +435,40 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                           showSpinner = true;
                         });
                         if (isSignupScreen) {
+                          if (userPickedImage == null) {
+                            setState(() {
+                              showSpinner = false;
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content:
+                                Text('Please pick your image'),
+                                backgroundColor: Colors.blue,
+                              ),
+                            );
+                            return;
+                          }
                           _tryValidation();
                           try {
                             final newUser = await _authentication
                                 .createUserWithEmailAndPassword(
                                 email: userEmail,
                                 password: userPassword);
+
                             if (newUser.user != null) {
+
+                              final refImage = FirebaseStorage.instance
+                                  .ref()
+                                  .child('picked_image')
+                                  .child(newUser.user!.uid + '.png');
+                              await refImage.putFile(userPickedImage!);
+                              final url = await refImage.getDownloadURL();
+
                               await FirebaseFirestore.instance.collection('user')
                                 .doc(newUser.user!.uid).set({
                                 'userName': userName,
                                 'email': userEmail,
+                                'picked_image': url,
                               });
                               // Navigator.push(
                               //   context,
@@ -453,13 +482,18 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                             }
                           } catch (e) {
                             print(e);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content:
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content:
                                   Text('Please check your email and password'),
-                                backgroundColor: Colors.blue,
-                              ),
-                            );
+                                  backgroundColor: Colors.blue,
+                                ),
+                              );
+                              setState(() {
+                                showSpinner = false;
+                              });
+                            }
                           }
                         } else {
                           _tryValidation();
